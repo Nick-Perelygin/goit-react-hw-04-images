@@ -1,8 +1,7 @@
-import React from 'react';
 import PropTypes from 'prop-types';
 import ImageGalleryItem from "components/ImageGalleryItem/ImageGalleryItem";
 
-const ImageGallery = ({images, setModalData}) => {
+export default function ImageGallery({images, openModalData}) {
   return (
     <ul className = "ImageGallery">
       {images.map(image => (
@@ -11,7 +10,7 @@ const ImageGallery = ({images, setModalData}) => {
           largeImageURL={image.largeImageURL} 
           webformatURL={image.webformatURL} 
           tags={image.tags}
-          onImageClick={setModalData}
+          onImageClick={openModalData}
         />
       ))}
     </ul> 
@@ -20,7 +19,5 @@ const ImageGallery = ({images, setModalData}) => {
 
 ImageGallery.propTypes = {
   images: PropTypes.array,
-  setModalData: PropTypes.func,
+  openModalData: PropTypes.func,
 };
-
-export default ImageGallery

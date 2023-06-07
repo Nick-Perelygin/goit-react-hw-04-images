@@ -1,7 +1,6 @@
-import React from "react";
 import PropTypes from 'prop-types';
 
-const ImageGalleryItem = ({largeImageURL, tags, webformatURL, onImageClick }) => {
+export default function ImageGalleryItem({largeImageURL, tags, webformatURL, onImageClick }) {
   return (
     <li className="ImageGalleryItem"
       onClick={ e => {
@@ -22,5 +21,3 @@ ImageGalleryItem.propTypes = {
   largeImageURL: PropTypes.string.isRequired,
   onImageClick: PropTypes.func.isRequired,
 };
-  
-export default ImageGalleryItem

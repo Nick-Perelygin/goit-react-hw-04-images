@@ -1,82 +1,70 @@
-import React from 'react';
+import { useState } from 'react';
 import Searchbar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader'
 import Button from './Button/Button'
 import Modal from './Modal/Modal';
 import Api from './API'
+import { useEffect } from 'react';
 
 const Status = {
   IDLE: 'idle',
   PENDING: 'pending',
   RESOLVED: 'resolved',
   REJECTED: 'rejected',
-};
+}
 
-export class App extends React.Component {
-  state = {
-    value: '',
-    images: [],
-    error: null,
-    status: Status.IDLE,
+export default function App() {
+  const[value, setValue] = useState('');
+  const[images, setImages] = useState([]);
+  const[error, setError] = useState(null);
+  const[status, setStatus] = useState(`${Status.IDLE}`);
+  const[page, setPage] = useState(1);
+  const[totalPages, setTotalPages] = useState(0);
+  const[isShowModal, setIsShowModal] = useState(false);
+  const[modalData, setModalData] = useState({ img: '', tags: '' });
 
-    page: 1,
-    totalPages: 0,
-
-    isShowModal: false,
-    modalData: { img: '', tags: '' },
-  };
-
-  componentDidUpdate(prevProps, prevState) {
-    const { page, value } = this.state;
-
-    if (prevState.value !== value || 
-      prevState.page !== page) {
-      Api.getImages(value, page)
+  useEffect(() =>{
+      Api(value, page)
         .then(images => {
-          this.setState({ status: Status.PENDING });
+          setStatus(Status.PENDING);
           if (images.length === 0) {
-            this.setState({ status: Status.IDLE });
+            setStatus(Status.IDLE);
             return alert(`Oops... there are no images matching your search ${value}`);
           }
-          this.setState(prevState => ({
-            images: [...prevState.images, ...images.hits],
-            status: Status.RESOLVED,
-            totalPages: Math.ceil(images.totalHits / 12),
-          }));
+          setImages([...images, ...images.hits]);
+          setStatus(Status.RESOLVED);
+          setTotalPages(Math.ceil(images.totalHits / 12));
         })
-      .catch(error => this.setState({ error, status: Status.REJECTED }));
-    }
+      .catch(error => setStatus(error));
+      setStatus(Status.REJECTED);
+  }, [value, page])
+
+  const onSubmitClick = data => {
+    setValue(data);
+    setImages([]);
+    setError(null);
+    setStatus(Status.IDLE);
+    setPage(1);
+    setTotalPages(0)
+    setIsShowModal(false)
+    setModalData({ img: '', tags: '' })
   }
 
-  onSubmitClick = data => {
-    this.setState({value: data.value,
-      images: [],
-      error: null,
-      status: Status.IDLE,
-  
-      page: 1,
-      totalPages: 0,
-  
-      isShowModal: false,
-      modalData: { img: '', tags: '' }})
-  }
-
-  setModalData = modalData => {
-    this.setState({ modalData, isShowModal: true });
+  const openModalData = modalData => {
+    setModalData(modalData);
+    setIsShowModal(true);
   };
 
-  handleModalClose = () => {
-    this.setState({ isShowModal: false });
+  const handleModalClose = () => {
+    setIsShowModal(false);
   };
 
-  handleLoadMore = () => {
-    this.setState(prevState => ({ page: prevState.page + 1 }));
+  const handleLoadMore = () => {
+    setPage(state => state + 1);
   };
 
-  render() {
-    const { images, error, status, page, totalPages, isShowModal, modalData } =
-        this.state;
+  return (() => {
     if (status === 'pending') {
       return <Loader/>;
     }
@@ -91,17 +79,17 @@ export class App extends React.Component {
           fontSize: 40,
           color: '#010101',
         }}>
-        <Searchbar onSubmit={this.onSubmitClick}/>
+        <Searchbar onSubmit={onSubmitClick}/>
         {images.length !== 0 && 
-        <ImageGallery images={this.state.images} setModalData={this.setModalData}/>
+        <ImageGallery images={images} openModalData={openModalData}/>
         }
         {images.length !== 0 && page < totalPages && 
-          <Button onClick={this.handleLoadMore}>Load More</Button>
+          <Button onClick={handleLoadMore}>Load More</Button>
         }
         {isShowModal && 
-          <Modal modalData={modalData} onModalClose={this.handleModalClose}/>
+          <Modal modalData={modalData} onModalClose={handleModalClose}/>
         }
       </div>
     )
-  }
+  })
 };
