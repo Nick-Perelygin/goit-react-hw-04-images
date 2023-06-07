@@ -7,7 +7,7 @@ export default function Searchbar({onSubmit}) {
 
   const handleOnChange = e => {
     const {value} = e.currentTarget
-    setValue(state => value)
+    setValue(value)
   };
 
   const onSubmitForm = e => {
