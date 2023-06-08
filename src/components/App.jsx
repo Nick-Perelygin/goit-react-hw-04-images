@@ -68,15 +68,7 @@ export default function App() {
   const handleLoadMore = () => {
     setPage(state => state + 1);
   };
-  
-  if (status === 'pending') {
-    return <Loader/>;
-  }
-    
-  if (status === 'rejected') {
-    return alert(`${error.message}`);
-  }
-    
+ 
   return (
     <div className="App"
       style={{
@@ -95,6 +87,8 @@ export default function App() {
       {isShowModal && 
         <Modal modalData={modalData} onModalClose={handleModalClose}/>
       }
+      {status === 'pending' && <Loader/>}
+      {status === 'rejected' && alert(`${error.message}`)}
     </div>
   )
 };
